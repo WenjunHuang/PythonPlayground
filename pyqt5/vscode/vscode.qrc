@@ -1,0 +1,14 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/images">
+        <file alias="bookmark">./images/bookmark.png</file>
+        <file alias="debug">./images/debug.png</file>
+        <file alias="explorer">./images/explorer.png</file>
+        <file alias="extension">./images/extension.png</file>
+        <file alias="search">./images/search.png</file>
+        <file alias="source_control">./images/source_control.png</file>
+        <file alias="welcome">./images/welcome.png</file>
+
+    </qresource>
+
+</RCC>
