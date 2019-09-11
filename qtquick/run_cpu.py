@@ -1,0 +1,3 @@
+import cpu
+
+cpu.main()
