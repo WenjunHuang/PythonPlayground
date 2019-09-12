@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>styles/coffee.css</file>
+        <file>styles/default.css</file>
+        <file>styles/pagefold.css</file>
+        <file>images/icons8-user.png</file>
+    </qresource>
+
+</RCC>

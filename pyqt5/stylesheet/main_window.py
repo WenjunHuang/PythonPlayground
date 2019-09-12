@@ -1,6 +1,9 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtGui import QImage, QIcon
 from PyQt5.QtWidgets import QMainWindow, QFrame, QGridLayout, QWidget, QVBoxLayout, QRadioButton, QComboBox, QLabel, \
-    QLineEdit, QSpinBox, QSpacerItem, QSizePolicy, QDialogButtonBox, QListWidget, QCheckBox, QAction
+    QLineEdit, QSpinBox, QSpacerItem, QSizePolicy, QDialogButtonBox, QListWidget, QCheckBox, QAction, qApp, QMessageBox, \
+    QPushButton
+from stylesheet_editor import StyleSheetEditor
 
 
 class MainWindow(QMainWindow):
@@ -9,11 +12,19 @@ class MainWindow(QMainWindow):
         self.initUI()
         self.initMenuBarAndStatusBar()
 
+        self.styleSheetEditor = StyleSheetEditor(self)
+
     def initMenuBarAndStatusBar(self):
         exitAction = QAction('&Exit', self)
+        exitAction.triggered.connect(qApp.quit)
         aboutQtAction = QAction('Abount Qt', self)
+        aboutQtAction.triggered.connect(qApp.aboutQt)
+
         editStyleAction = QAction("Edit &Style...", self)
+        editStyleAction.triggered.connect(self.on_editStyleAction_triggered)
+
         aboutAction = QAction("About", self)
+        aboutAction.triggered.connect(self.on_aboutAction_triggered)
 
         menu_bar = self.menuBar()
 
@@ -26,6 +37,10 @@ class MainWindow(QMainWindow):
         help_menu.addAction(aboutAction)
         help_menu.addAction(aboutQtAction)
 
+        status_bar = self.statusBar()
+        status_bar.addPermanentWidget(QLabel('Ready'))
+        status_bar.addPermanentWidget(QPushButton(QIcon(":/images/icons8-user.png"), ""))
+
     def initUI(self):
         frame = QFrame(self, frameShape=QFrame.StyledPanel, frameShadow=QFrame.Raised)
         gridLayout = QGridLayout()
@@ -34,7 +49,9 @@ class MainWindow(QMainWindow):
         frame.setLayout(gridLayout)
 
         self.nameCombo = QComboBox(self, toolTip="Specify your name", editable=True)
-        self.nameLabel = QLabel("&Name", self, alignment=Qt.AlignRight | Qt.AlignTrailing | Qt.AlignVCenter)
+        self.nameLabel = QLabel("&Name", self,
+                                alignment=Qt.AlignRight | Qt.AlignTrailing | Qt.AlignVCenter)
+        self.nameLabel.setProperty('class', 'mandatory QLabel')
         self.nameLabel.setBuddy(self.nameCombo)
         gridLayout.addWidget(self.nameLabel, 0, 0, 1, 1)
         gridLayout.addWidget(self.nameCombo, 0, 1, 1, 4)
@@ -102,3 +119,14 @@ class MainWindow(QMainWindow):
         vlayout.addWidget(frame)
         center.setLayout(vlayout)
         self.setCentralWidget(center)
+
+    @pyqtSlot(name='onEditStyleActionTriggered')
+    def on_editStyleAction_triggered(self):
+        self.styleSheetEditor.show()
+        self.styleSheetEditor.activateWindow()
+
+    @pyqtSlot(name='onAboutActionTriggered')
+    def on_aboutAction_triggered(self):
+        QMessageBox.about(self, "About Style Sheet",
+                          r"The <b>Style Sheet</b> example shows how widgets can be styled "
+                          r'using <a href=\"http://doc.qt.io/qt-5/stylesheet.html\">Qt ')
