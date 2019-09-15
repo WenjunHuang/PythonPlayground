@@ -43,6 +43,7 @@ class MainWindow(QMainWindow):
 
     def initUI(self):
         frame = QFrame(self, frameShape=QFrame.StyledPanel, frameShadow=QFrame.Raised)
+        frame.setObjectName('mainFrame')
         gridLayout = QGridLayout()
         gridLayout.setSpacing(6)
         gridLayout.setContentsMargins(9, 9, 9, 9)
@@ -88,6 +89,7 @@ class MainWindow(QMainWindow):
 
         self.countryCombo = QComboBox(self, toolTip='Specify country of origin',
                                       statusTip='Specify country of origin')
+        self.countryCombo.setProperty("class", "stadium QComboBox")
         self.countryCombo.addItems(['Egypt', 'France', 'Germany', 'India', 'Italy', 'Norway', 'Pakistan', ])
         self.countryCombo.setCurrentIndex(6)
         gridLayout.addWidget(self.countryCombo, 4, 1, 1, 4)
@@ -108,6 +110,7 @@ class MainWindow(QMainWindow):
 
         self.agreeCheckBox = QCheckBox('I accept the terms and &conditions', self,
                                        toolTip='Please read the LICENSE file before checking')
+        self.agreeCheckBox.setProperty("class", "agreement QCheckBox")
         gridLayout.addWidget(self.agreeCheckBox, 6, 0, 1, 5)
 
         self.buttonBox = QDialogButtonBox(self, orientation=Qt.Horizontal,

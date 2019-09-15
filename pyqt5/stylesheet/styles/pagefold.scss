@@ -1,5 +1,265 @@
 QMainWindow {
   & > .QWidget {
+    background-color: gainsboro;
+    background-image: url(:/images/pagefold.png);
+    background-position: top right;
+    background-repeat: no-repeat;
+  }
+}
+
+#mainFrame {
+  padding-right: 30px;
+  border-style: none;
+  border-image: none;
+}
+
+QFrame, QLineEdit, QComboBox[editable="true"], QSpinBox {
+  border-image: url(:/images/frame.png) 4;
+  border-width: 3px;
+}
+
+QLabel {
+  border: none;
+  border-image: none;
+  padding: 0;
+  background: none;
+}
+
+QWidget {
+  selection-color: black;
+  selection-background-color: Silver;
+  color: black;
+}
+
+QAbstractItemView {
+  show-decoration-selected: 1;
+}
+
+QLineEdit[echoMode="2"] {
+  lineedit-password-character: 9679;
+}
+
+QToolTip {
+  background-color: rgb(200, 200, 255);
+  border: 1px solid darkslategray;
+  padding: 3px;
+  font-weight: bold;
+  border-radius: 3px;
+  opacity: 200;
+}
+
+QRadioButton {
+  spacing: 5px;
+
+  &::indicator {
+    width: 13px;
+    height: 13px;
+
+    &:unchecked {
+      image: url(:/images/radiobutton_unchecked.png);
+
+      &:hover {
+        image: url(:/images/radiobutton_unchecked_hover.png);
+      }
+
+      &:pressed {
+        image: url(:/images/radiobutton_unchecked_pressed.png);
+      }
+    }
+
+    &:checked {
+      image: url(:/images/radiobutton_checked.png);
+
+      &:hover {
+        image: url(:/images/radiobutton_checked_hover.png);
+      }
+
+      &:pressed {
+        image: url(:/images/radiobutton_checked_pressed.png);
+      }
+    }
+  }
+}
+
+/* Customize arrows. */
+*::down-arrow {
+  image: url(:/images/down_arrow.png);
+  width: 7px;
+  height: 7px;
+
+  &:disabled, &:off {
+    image: url(:/images/down_arrow_disabled.png);
+  }
+}
+
+*::menu-indicator {
+  image: url(:/images/down_arrow.png);
+  width: 7px;
+  height: 7px;
+}
+
+*::up-arrow {
+  image: url(:/images/up_arrow.png);
+  width: 7px;
+  height: 7px;
+
+  &:disable, &:off {
+    image: url(:/images/up_arrow_disabled.png);
+  }
+}
+
+QPushButton {
+  min-width: 4em;
+  background-color: blue;
+  //border:2px solid red;
+  //border:none;
+  //background: unquote("qlineargradient(y1:0, y2:1, stop:0 white, stop: 0.4 gray, stop:1 green)");
+}
+
+//QPushButton,
+QComboBox[editable="false"],
+QComboBox[editable="true"]::drop-down {
+  border-image: url(:/images/pushbutton.png) 5;
+  border-width: 5px;
+}
+
+/* Customize read-only comboboxes. */
+QComboBox[editable="false"] {
+  padding-left: 2px;
+  padding-right: 20px; // space for the arrow
+
+  &::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+    border-left: 1px solid darkgray;
+  }
+
+  &::down-arrow {
+    subcontrol-origin: content;
+    subcontrol-position: center;
+    position: relative;
+    left: 1px;
+
+    &:on {
+      position: relative;
+      top: 1px;
+      left: 2px;
+    }
+  }
+}
+
+QComboBox[editable='true'] {
+  padding-right: 16px;
+
+  &::drop-down {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 13px;
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    right: 2px;
+
+    border-width: 0px;
+    border-left-width: 3px;
+
+    &:on {
+      position: relative;
+      top: 1px;
+      left: 1px;
+    }
+  }
+}
+
+.QCheckBox {
+  spacing: 10px;
+
+  &::indicator {
+    width: 13px;
+    height: 13px;
+
+    &:unchecked {
+      image: url(:/images/checkbox_unchecked.png);
+    }
+
+    &:hover {
+      image: url(:/images/checkbox_unchecked_hover.png);
+    }
+
+    &:pressed {
+      image: url(:/images/checkbox_unchecked_pressed.png);
+    }
+
+    &:checked {
+      image: url(:/images/checkbox_checked.png);
+
+      &:hover {
+        image: url(:/images/checkbox_checked_hover.png);
+      }
+
+      &:pressed {
+        image: url(:/images/checkbox_checked_pressed.png);
+      }
+    }
+  }
+
+}
+
+// Customize the size grip
+QSizeGrip {
+  image: url(:/images/sizegrip.png);
+  width: 16px;
+  height: 16px;
+}
+
+// Customize the menu bar
+
+QMenuBar {
+  border-image: none;
+  border-style: none;
+  border-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: darkslategray;
+}
+
+// Customize spin boxes
+QSpinBox {
+  padding-right: 15px;
+
+  &:up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+
+    width: 16px;
+    border-image: url(:/images/spinup.png) 1;
+    border-width: 1px;
+
+    &:hover {
+      border-image: url(:/images/spinup_hover.png) 1;
+    }
+
+    &:pressed {
+      border-image: url(:/images/spinup_pressed.png) 1;
+    }
+  }
+
+  &::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+
+    width: 16px;
+    border-image: url(:/images/spindown.png) 1;
+    border-width: 1px;
+    border-top-width: 0;
+
+    &:hover {
+      border-image: url(:/images/spindown_hover.png) 1;
+    }
+
+    &:pressed {
+      border-image: url(:/images/spindown_pressed.png) 1;
+    }
   }
 }
 

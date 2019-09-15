@@ -1,3 +1,5 @@
+$color:wheat;
+
 .QWidget {
   background-color: beige;
 }
@@ -54,7 +56,62 @@ QStatusBar {
 
 QComboBox, QLineEdit, QSpinBox, QTextEdit, QListView {
   background-color: cornsilk;
-  selection-color: #0a214c;
+  selection-color: red;
   selection-background-color: #c19a6b;
 }
 
+.stadium {
+  border: 2px solid orange;
+  border-radius: 10px;
+  text-align: center;
+
+  &:on {
+    padding-top: 3px;
+    padding-left: 4px;
+  }
+
+  &::drop-down {
+    border: none;
+  }
+}
+
+QListView {
+  show-decoration-selected: 1;
+
+  &::item:hover {
+    background-color: wheat;
+  }
+}
+
+QLineEdit, QFrame {
+  border-width: 2px;
+  padding: 1px;
+  border-style: solid;
+  border-color: darkkhaki;
+  border-radius: 5px;
+
+  &:focus {
+    border-width: 3px;
+    padding: 0;
+  }
+}
+/* A QLabel is a QFrame ... */
+QLabel {
+  border: none;
+  padding: 0;
+  background: none;
+}
+
+/* A QToolTip is a QLabel ... */
+QToolTip {
+  border: 2px solid darkkhaki;
+  padding: 5px;
+  border-radius: 3px;
+  opacity: 300;
+}
+
+QRadioButton, QCheckBox {
+  &:hover {
+    background-color: $color;
+  }
+}

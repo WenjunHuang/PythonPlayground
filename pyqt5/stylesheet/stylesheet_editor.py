@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, pyqtSlot, QFile
+from PyQt5.QtCore import Qt, pyqtSlot, QFile, QFileSystemWatcher, QDir
 from PyQt5.QtWidgets import QDialog, QGridLayout, QSpacerItem, QSizePolicy, QLabel, QComboBox, QTextEdit, QHBoxLayout, \
     QPushButton, QApplication, QStyleFactory, qApp
 import re
@@ -11,12 +11,15 @@ class StyleSheetEditor(QDialog):
 
         reg_exp = r"^.(.*)\+?Style$"
         default_style = QApplication.style().metaObject().className()
+        print(default_style)
         match = re.match(reg_exp, default_style)
         if match:
             default_style = match[1]
         self.styleCombo.addItems(QStyleFactory.keys())
         self.styleCombo.setCurrentIndex(self.styleCombo.findText(default_style,
                                                                  Qt.MatchContains))
+        self.styleSheetCombo.setCurrentIndex(self.styleSheetCombo.findText('Coffee'))
+        self.load_stylesheet('Coffee')
 
     def initUI(self):
         self.setWindowTitle('Style Editor')
@@ -108,14 +111,35 @@ class StyleSheetEditor(QDialog):
         qApp.setStyle(style_name)
         self.applyButton.setEnabled(False)
 
-    def on_styleSheetCombo_activated(self,sheet_name:str):
+    def on_styleSheetCombo_activated(self, sheet_name: str):
         self.load_stylesheet(sheet_name)
 
     def load_stylesheet(self, sheet_name: str):
-        file = QFile(f":/styles/{sheet_name.lower()}.css")
+        file_path = f"./styles/{sheet_name.lower()}.css"
+        self.load_stylesheet_file(file_path)
+        self.watch_file(file_path)
+
+    def load_stylesheet_file(self, file_path: str):
+        file = QFile(file_path)
         file.open(QFile.ReadOnly)
         style_sheet = str(file.readAll(), encoding='utf-8')
 
         self.styleTextEdit.setPlainText(style_sheet)
         qApp.setStyleSheet(style_sheet)
         self.applyButton.setEnabled(False)
+
+    def style_file_changed(self, file):
+        print(f"file changed:{file}")
+        self.load_stylesheet_file(file)
+
+    def watch_file(self, file: str):
+        if not hasattr(self, "file_watcher"):
+            self.file_watcher = QFileSystemWatcher()
+            self.file_watcher.fileChanged.connect(self.style_file_changed)
+
+        if hasattr(self, "old_file"):
+            self.file_watcher.removePath(self.old_file)
+
+        file = QDir().absoluteFilePath(file)
+        self.file_watcher.addPath(file)
+        self.old_file = file
