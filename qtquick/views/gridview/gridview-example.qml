@@ -50,6 +50,7 @@ Rectangle {
         }
 
         delegate:Item {
+            id:item
             width:100;height:100
 
             Image {
@@ -66,7 +67,7 @@ Rectangle {
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: parent.GridView.view.currentIndex = index
+                onClicked:item.GridView.view.currentIndex = index
             }
         }
     }
