@@ -1,4 +1,5 @@
-import QtQuick 2.0
+import QtQuick 2.12
+import QtGraphicalEffects 1.13
 import "content"
 
 Rectangle {
@@ -72,19 +73,45 @@ Rectangle {
                     left: parent.left
                     verticalCenter: parent.verticalCenter
                 }
+                Item {
+                    width: arrowUp.width
+                    height: arrowUp.height
 
-                Image {
-                    source: "content/pics/arrow-up.png"
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: fruitModel.move(index, index - 1, 1)
+                    Image {
+                        id: arrowUp
+                        source: "content/pics/arrow-up.png"
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: fruitModel.move(index, index - 1, 1)
+                            enabled: index !== 0
+                        }
+                    }
+
+                    ColorOverlay {
+                        anchors.fill: arrowUp
+                        source: arrowUp
+                        color: "gray"
+                        visible: index === 0
                     }
                 }
-                Image {
-                    source: "content/pics/arrow-down.png"
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: fruitModel.move(index, index + 1, 1)
+
+                Item {
+                    width: arrowDown.width
+                    height: arrowDown.height
+                    Image {
+                        id: arrowDown
+                        source: "content/pics/arrow-down.png"
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: fruitModel.move(index, index + 1, 1)
+                            enabled: index !== fruitModel.count - 1
+                        }
+                    }
+                    ColorOverlay {
+                        anchors.fill: arrowDown
+                        source: arrowDown
+                        color: "gray"
+                        visible: index === fruitModel.count - 1
                     }
                 }
             }
@@ -128,10 +155,35 @@ Rectangle {
                     spacing: 10
 
                     PressAndHoldButton {
-                        anchors.verticalCenter:parent.verticalCenter
-                        source :"content/pics/plus-sign.png"
-                        onClicked: fruitModel.setProperty(index,"cost",cost + 0.25)
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "content/pics/plus-sign.png"
+                        onClicked: fruitModel.setProperty(index, "cost",
+                                                          cost + 0.25)
+                    }
 
+                    Text {
+                        id: costText
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: '$' + Number(cost).toFixed(2)
+                        font.pixelSize: 15
+                        color: "white"
+                        font.bold: true
+                    }
+
+                    PressAndHoldButton {
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "content/pics/minus-sign.png"
+                        onClicked: fruitModel.setProperty(index, "cost",
+                                                          Math.max(0,
+                                                                   cost - 0.25))
+                    }
+
+                    Image {
+                        source: "content/pics/list-delete.png"
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: fruitModel.remove(index)
+                        }
                     }
                 }
             }
@@ -189,6 +241,18 @@ Rectangle {
         }
         model: fruitModel
         delegate: listDelegate
+        move: Transition {
+            NumberAnimation {
+                properties: "x,y"
+                duration: 250
+            }
+        }
+        moveDisplaced: Transition {
+            NumberAnimation {
+                properties: "x,y"
+                duration: 250
+            }
+        }
     }
 
     Row {
@@ -216,7 +280,7 @@ Rectangle {
         }
 
         StadiumButton {
-            text:"Remove all items"
+            text: "Remove all items"
             onClicked: fruitModel.clear()
         }
     }
