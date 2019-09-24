@@ -16,7 +16,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -127,3 +126,52 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+将删除 .DS_Store
+将删除 .idea/$PRODUCT_WORKSPACE_FILE$
+将删除 .idea/.gitignore
+将删除 .idea/codeStyles/
+将删除 .idea/emacs.xml
+将删除 .idea/inspectionProfiles/
+将删除 .idea/misc.xml
+将删除 .idea/modules.xml
+将删除 .idea/sbt.xml
+将删除 .idea/vcs.xml
+将删除 .idea/watcherTasks.xml
+将删除 PythonPlayground.iml
+将删除 github_desktop/test/
+将删除 pyqt5/.DS_Store
+将删除 pyqt5/stylesheet/.DS_Store
+将删除 qtquick/.DS_Store
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeCache.txt
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/3.15.3/
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/CMakeDirectoryInformation.cmake
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/CMakeRuleHashes.txt
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/CMakeTmp/
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/Makefile.cmake
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/Makefile2
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/TargetDirectories.txt
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/cmake.check_cache
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/photoviewer.dir/
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/photoviewer_autogen.dir/
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/progress.marks
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/Makefile
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/cmake_install.cmake
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/photoviewer
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/photoviewer.cbp
+将删除 qtquick/build-photoviewer-Desktop_Qt_5_13_0_clang_64bit-Default/photoviewer_autogen/
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeCache.txt
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/3.15.3/
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/CMakeDirectoryInformation.cmake
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/CMakeRuleHashes.txt
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/CMakeTmp/
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/Makefile.cmake
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/Makefile2
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/TargetDirectories.txt
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/cmake.check_cache
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/progress.marks
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/views.dir/
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/CMakeFiles/views_autogen.dir/
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/Makefile
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/cmake_install.cmake
+将删除 qtquick/build-views-Desktop_Qt_5_13_0_clang_64bit-Default/views.cbp
+将删除 qtquick/views/CMakeLists.txt.user.7c70bbb
