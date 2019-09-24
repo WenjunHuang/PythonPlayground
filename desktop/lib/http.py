@@ -143,7 +143,7 @@ def url_with_query_string(url: str, **kwargs) -> str:
     if not qs:
         return url
 
-    if qs.find('?') == -1:
+    if url.find('?') == -1:
         return f'{url}?{qs}'
     else:
         return f'{url}&{qs}'
