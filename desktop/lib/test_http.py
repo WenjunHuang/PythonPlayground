@@ -144,8 +144,12 @@ class TestHttp(unittest.TestCase):
 
     def test_fetch_protected_branches(self):
         api = API(self.session, self.endpoint, self.token)
-        asyncio.create_task(api.fetch_protected_branches("WenjunHuang", "WebFontendPlayground"))
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(api.fetch_protected_branches("WenjunHuang", "WebFontendPlayground"))
         result = self.loop.run_until_complete(
             api.fetch_protected_branches("WenjunHuang", "WebFontendPlayground"))
-
         print(result)
+
+        result = loop.run_until_complete(task)
+        print(result)
+
