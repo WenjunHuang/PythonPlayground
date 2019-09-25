@@ -15,10 +15,11 @@ Window {
 
         TextField {
             id: inputUrl
-            text:"https://jsonplaceholder.typicode.com/todos/1"
+            text: "https://jsonplaceholder.typicode.com/todos/1"
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
+            selectByMouse: true
         }
 
         ScrollView {
@@ -42,23 +43,33 @@ Window {
                 var url = inputUrl.text
                 if (url) {
                     root.state = "loading"
-                    const result = http.fetch(url,(result)=>{
-                    taResponse.text = result;
-                    root.state = "normal";
-                                              })
+                    var result = http.fetch(url, function (result) {
+                        taResponse.text = result
+                        root.state = "normal"
+                    })
                 }
             }
         }
 
-        Rectangle{
+        Rectangle {
             id: busy
-            color: Qt.rgba(0,0,0,0.2)
-            visible: false
-            enabled: visible
+            color: Qt.rgba(0, 0, 0, 0.2)
+            opacity: 0.0
+            enabled: opacity == 1.0
             anchors.fill: parent
-        BusyIndicator{
-            anchors.centerIn:parent
-        }
+            BusyIndicator {
+                anchors.centerIn: parent
+            }
+
+            Behavior on opacity {
+                NumberAnimation{
+                    duration: 1000
+                }
+            }
+
+            MouseArea{
+                anchors.fill: parent
+            }
         }
 
         state: "normal"
@@ -70,8 +81,8 @@ Window {
                     enabled: false
                 }
                 PropertyChanges {
-                    target:busy
-                    visible:true
+                    target: busy
+                    opacity: 1.0
                 }
             },
             State {
