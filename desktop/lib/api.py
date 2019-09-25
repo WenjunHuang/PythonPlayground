@@ -1,17 +1,19 @@
-from dataclasses_json import dataclass_json, config
-from dataclasses import dataclass, field
-from abc import ABC
-from urllib.parse import urlparse, urlsplit, urlunsplit, unquote
 import re
-from typing import *
-from enum import Enum
-from marshmallow import fields
-import logging
+from PyQt5.QtCore import Q_ENUM
+from abc import ABC
+from dataclasses import field
 from datetime import datetime
-import math
+from urllib.parse import urlsplit, urlunsplit, unquote
 
 import aiohttp
+from dataclasses_json import config
+
 from .http import *
+
+
+class MaxResultsError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
 
 
 class GitHubAccountType(Enum):
@@ -168,6 +170,51 @@ class APIPullRequestData:
             decoder=PullRequestState.from_str
         )
     )
+
+
+class APIRefState(Enum):
+    Failure = 'failure'
+    Pending = 'pending'
+    Success = 'success'
+
+    @classmethod
+    def from_str(cls, value: str) -> 'APIRefState':
+        return APIRefState(value)
+
+
+@dataclass_json
+@dataclass
+class APIRefStatusItemData:
+    state: APIRefState = field(
+        metadata=config(
+            encoder=APIRefState,
+            decoder=APIRefState.from_str
+        )
+    )
+    target_url: str
+    description: str
+    context: str
+    id: int
+
+
+@dataclass_json
+@dataclass
+class APIRefStatusData:
+    state: APIRefState = field(
+        metadata=config(
+            encoder=APIRefState,
+            decoder=APIRefState.from_str
+        )
+    )
+    total_count: int
+    statuses: List[APIRefStatusItemData]
+
+
+@dataclass_json
+@dataclass
+class APIBranchData:
+    name: str
+    protected: bool
 
 
 class IFetchAllOptions(ABC):
@@ -334,7 +381,25 @@ class API:
     async def fetch_updated_pull_requests(self, owner: str, name: str, since: datetime, max_results: int = 320):
         url = url_with_query_string(f"repos/{owner}/{name}/pulls", state='all', sort='updated', direction='desc')
         try:
-            prs = await self.__fetch_all(url, APIPullRequestData, )
+            prs = await self.__fetch_all(url, APIPullRequestData, FetchUpdatedPullRequestOpt(since, max_results))
+            return list(filter(lambda i: datetime.fromisoformat(i.updated_at) >= since, prs))
+        except Exception as e:
+            logging.warning(f"failed fetching updated PRs for repository {owner}/{name}", e)
+            raise e
+
+    async def fetch_combined_ref_status(self, owner: str, name: str, ref: str) -> APIRefStatusData:
+        path = f"repos/{owner}/{name}/commits/{ref}/status"
+        response = await self.__request(HTTPMethod.GET, path)
+        return await self.__parse_response(response, APIRefStatusData)
+
+    async def fetch_protected_branches(self, owner: str, name: str) -> List[APIBranchData]:
+        path = f"repos/{owner}/{name}/branches?protected=true"
+        try:
+            response = await self.__request(HTTPMethod.GET, path)
+            return await self.__parse_response(response, APIBranchData, is_list=True)
+        except Exception as e:
+            logging.info("fetch_protected_branches unable to list protected brances", e)
+            return []
 
     async def __fetch_all(self,
                           path: str,
@@ -390,6 +455,12 @@ class API:
 
 
 class FetchUpdatedPullRequestOpt(IFetchAllOptions):
+
+    def __init__(self, since: datetime, max_result: int):
+        super().__init__()
+        self.max_result = max_result
+        self.since = since
+
     def per_page(self) -> Optional[int]:
         return 10
 
@@ -398,8 +469,8 @@ class FetchUpdatedPullRequestOpt(IFetchAllOptions):
         if not next_path:
             return None
 
-        query_str = urlsplit(next_path).query
-        query_list = [sub.partition('=') for sub in query_str.split('&')]
+        splitted_url = urlsplit(next_path)
+        query_list = [sub.partition('=') for sub in splitted_url.query.split('&')]
         query_dict = {left: unquote(right) for (left, _, right) in query_list}
 
         page_size = int(query_dict.get('per_page'), 10) if 'per_page' in query_dict else None
@@ -413,3 +484,19 @@ class FetchUpdatedPullRequestOpt(IFetchAllOptions):
         next_page_size = min(100, page_size * 2)
 
         if page_size != next_page_size and received % next_page_size == 0:
+            query = {'per_page': next_page_size, 'page': f"{received // next_page_size + 1}"}
+            return url_with_query_string(
+                urlunsplit((splitted_url.scheme, splitted_url.netloc, splitted_url.path, '', '')),
+                **query)
+        else:
+            return next_path
+
+    def should_continue(self, results) -> bool:
+        if len(results) >= self.max_result:
+            raise MaxResultsError('got max pull requests, aborting')
+
+        last = results[-1]
+        return datetime.fromisoformat(last.updated_at) > self.since
+
+    def suppress_errors(self) -> bool:
+        return False

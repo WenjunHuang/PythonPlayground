@@ -141,3 +141,11 @@ class TestHttp(unittest.TestCase):
             api.fetch_all_open_pull_requests("shiftkey", "desktop"))
 
         print(result)
+
+    def test_fetch_protected_branches(self):
+        api = API(self.session, self.endpoint, self.token)
+        asyncio.create_task(api.fetch_protected_branches("WenjunHuang", "WebFontendPlayground"))
+        result = self.loop.run_until_complete(
+            api.fetch_protected_branches("WenjunHuang", "WebFontendPlayground"))
+
+        print(result)

@@ -24,6 +24,7 @@ Window {
 
     NumberGenerator {
         id: numberGenerator
+        max: rawData.max
     }
 
     Connections {
