@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.12
+import "dialog_config.js" as Config
 
 Item {
     width: 640
@@ -8,19 +9,51 @@ Item {
     Item {
         id: dialogContainer
         anchors.fill: parent
-        Dialog {
+        Popup {
             id: dialog
-            title: "Title"
             modal: true
             closePolicy: Popup.NoAutoClose
             anchors.centerIn: Overlay.overlay
-            onAccepted: console.log("Ok clicked")
-            onRejected: console.log("Cancel clicked")
-            footer: Row{
-                Button{
-                    text:'close'
-                    onClicked:{
-                        dialogContainer.hide()
+            //            standardButtons: Dialog.Ok | Dialog.Cancel
+            //            onAccepted: console.log("Ok clicked")
+            //            onRejected: console.log("Cancel clicked")
+            background: Rectangle {
+                border.color: 'orange'
+                radius: Config.kBaseUnit * 2
+            }
+            contentItem: Column {
+                Item {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: 50
+                    Text {
+                        id: header
+                        text: "Title"
+                        font.pixelSize: Config.kTextUnit * 6
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+                Item {
+                    id: content
+                    //                    anchors.top: header.bottom
+                    implicitHeight: 200
+                    implicitWidth: 200
+                }
+                Item {
+                    id: footer
+                    height: 50
+                    anchors.left:parent.left
+                    anchors.right:parent.right
+
+                    Button {
+                        anchors.right: parent.right
+                        anchors.rightMargin: Config.kBaseUnit * 3
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: 'Close'
+                        onClicked: {
+                            dialogContainer.hide()
+                        }
                     }
                 }
             }
@@ -97,7 +130,10 @@ Item {
                     }
 
                     PropertyAction {
-                        target: dialog; property: "visible";value:false }
+                        target: dialog
+                        property: "visible"
+                        value: false
+                    }
                 }
             }
         ]
