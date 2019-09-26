@@ -1,14 +1,27 @@
+import json
+import logging
 import platform
 from dataclasses import dataclass
 from enum import Enum
 from typing import *
 from urllib.parse import urljoin, quote
-from marshmallow import EXCLUDE, ValidationError, fields
-import logging
-import json
 
+import aiohttp
 import aiohttp as http
-from dataclasses_json import DataClassJsonMixin, dataclass_json
+from dataclasses_json import dataclass_json
+
+from desktop.lib.json import json_generator
+
+http_session: aiohttp.ClientSession
+
+
+def init_session():
+    global http_session
+    http_session = aiohttp.ClientSession(json_serialize=json_generator)
+
+
+def get_session():
+    return http_session
 
 
 class HTTPMethod(Enum):
@@ -33,8 +46,9 @@ class APIErrorData:
     message: Optional[str] = None
 
 
+@dataclass
 class APIError(Exception):
-    apiError: Optional[APIErrorData]
+    apiError: Optional[APIErrorData] = None
 
     def __init__(self, response: http.ClientResponse,
                  api_error: Optional[APIErrorData]):
@@ -96,13 +110,6 @@ def get_absolute_url(endpoint: str, path: str) -> str:
 
     base = endpoint if endpoint.endswith('/') else f"{endpoint}/"
     return urljoin(base, relative_path)
-
-
-def json_dump(data: DataClassJsonMixin) -> Union[str, None]:
-    if data:
-        data.to_json()
-    else:
-        return None
 
 
 # make an api request

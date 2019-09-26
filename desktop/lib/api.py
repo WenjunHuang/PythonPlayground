@@ -1,19 +1,31 @@
+import base64
+import os
 import re
-from PyQt5.QtCore import Q_ENUM
+import socket
 from abc import ABC
 from dataclasses import field
 from datetime import datetime
 from urllib.parse import urlsplit, urlunsplit, unquote
+from uuid import uuid4
 
-import aiohttp
 from dataclasses_json import config
 
-from .http import *
+from desktop.lib.common import with_logger, get_machine_username
+from desktop.lib.http import *
+from desktop.lib.two_factor_auth import AuthenticationMode
 
 
 class MaxResultsError(Exception):
     def __init__(self, msg):
         super().__init__(msg)
+
+
+kScopes = ['repo', 'user']
+
+# dev
+kClientId = '3a723b10ac5575cc5bb9'
+kClientSecret = '22c34d87789a365981ed921352a7b9a8c3f69d54'
+kNoteURL = 'https://desktop.github.com/'
 
 
 class GitHubAccountType(Enum):
@@ -217,6 +229,20 @@ class APIBranchData:
     protected: bool
 
 
+@dataclass_json
+@dataclass
+class APIAccessTokenData:
+    access_token: str
+    scope: str
+    token_type: str
+
+
+@dataclass_json
+@dataclass
+class APIAuthorizationData:
+    token: str
+
+
 class IFetchAllOptions(ABC):
     def per_page(self) -> Optional[int]:
         pass
@@ -255,11 +281,12 @@ def to_github_iso_datestring(time: datetime) -> str:
     return time.isoformat(timespec='seconds')
 
 
+@with_logger
 class API:
-    def __init__(self, session: aiohttp.ClientSession, endpoint: str, token: str):
+    def __init__(self, endpoint: str, token: str):
         self.endpoint = endpoint
         self.token = token
-        self.session = session
+        self.session = get_session()
 
     async def fetch_repository(self, owner: str, name: str) -> Union[APIRepositoryData, None]:
         try:
@@ -269,7 +296,7 @@ class API:
                 logging.warning(f'fetch_repository: "{owner}/{name}" return a 404')
                 return None
             else:
-                return await self.__parse_response(response, APIRepositoryData)
+                return await parse_response(response, APIRepositoryData)
         except Exception as e:
             logging.warning(f'fetch_repository: an error occured for "{owner}/{name}', e)
             return None
@@ -285,14 +312,14 @@ class API:
     async def fetch_account(self) -> APIFullIdentityData:
         try:
             response = await self.__request(HTTPMethod.GET, 'user')
-            return await self.__parse_response(response, APIFullIdentityData)
+            return await parse_response(response, APIFullIdentityData)
         except Exception as e:
             logging.warning(f"fetch_account: failed with endpoint {self.endpoint}", e)
 
     async def fetch_emails(self) -> List[APIEmailData]:
         try:
             response = await self.__request(HTTPMethod.GET, 'user/emails')
-            return await self.__parse_response(response, APIEmailData, is_list=True)
+            return await parse_response(response, APIEmailData, is_list=True)
         except Exception as e:
             logging.warning(f"fetch_emails: failed with endpoint {self.endpoint}", e)
             return []
@@ -304,7 +331,7 @@ class API:
             if response.status == 404:
                 logging.warning(f"fetch_commit: '{path}' returned a 404")
                 return None
-            return await self.__parse_response(response, APICommitData)
+            return await parse_response(response, APICommitData)
         except Exception as e:
             logging.warning(f"fetch_commit: returned an error '{owner}/{name}@{sha}'", e)
             return None
@@ -315,7 +342,7 @@ class API:
         try:
             url = url_with_query_string('search/users', q=f"{email} in:email type:user")
             response = await self.__request(HTTPMethod.GET, url)
-            result = await self.__parse_response(response, APISearchForUsersResults)
+            result = await parse_response(response, APISearchForUsersResults)
             items = result.items
             if len(items) > 0:
                 return items[0]
@@ -344,7 +371,7 @@ class API:
                                                 'description': description,
                                                 'private': private
                                             })
-            return await self.__parse_response(response, APIRepositoryData)
+            return await parse_response(response, APIRepositoryData)
         except APIError as e:
             if org:
                 raise Exception(
@@ -390,16 +417,30 @@ class API:
     async def fetch_combined_ref_status(self, owner: str, name: str, ref: str) -> APIRefStatusData:
         path = f"repos/{owner}/{name}/commits/{ref}/status"
         response = await self.__request(HTTPMethod.GET, path)
-        return await self.__parse_response(response, APIRefStatusData)
+        return await parse_response(response, APIRefStatusData)
 
     async def fetch_protected_branches(self, owner: str, name: str) -> List[APIBranchData]:
         path = f"repos/{owner}/{name}/branches?protected=true"
         try:
             response = await self.__request(HTTPMethod.GET, path)
-            return await self.__parse_response(response, APIBranchData, is_list=True)
+            return await parse_response(response, APIBranchData, is_list=True)
         except Exception as e:
             logging.info("fetch_protected_branches unable to list protected brances", e)
             return []
+
+    async def get_fetch_poll_interval(self, owner: str, name: str) -> Optional[int]:
+        path = f"repos/{owner}/{name}/git"
+        try:
+            response = await self.__request(HTTPMethod.HEAD, path)
+            interval = response.headers.get('x-poll-interval')
+            if interval:
+                parsed = int(interval, 10)
+                return parsed
+            else:
+                return None
+        except Exception as e:
+            self._logger.warning(f"failed for {owner}/{name}", e)
+            return None
 
     async def __fetch_all(self,
                           path: str,
@@ -415,7 +456,7 @@ class API:
                 logging.warning(f"fetch_all: '{path}' returned a {response.status}")
                 return buf
 
-            items = await self.__parse_response(response, cls, is_list=True)
+            items = await parse_response(response, cls, is_list=True)
             buf.extend(items)
 
             next_path = None if not options else options.next_page_path(response)
@@ -425,20 +466,6 @@ class API:
                 break
 
         return buf
-
-    async def __parse_response(self, response: aiohttp.ClientResponse, cls, is_list: bool = False):
-        if response.status == 200 or response.status == 201:
-            if not is_list:
-                return await deserialize_object(response, cls)
-            else:
-                return await deserialize_list(response, cls)
-        else:
-            try:
-                api_error = await deserialize_object(response, APIErrorData)
-            except Exception as e:
-                raise APIError(response, None)
-
-            raise APIError(response, api_error)
 
     async def __request(self,
                         method: HTTPMethod,
@@ -500,3 +527,124 @@ class FetchUpdatedPullRequestOpt(IFetchAllOptions):
 
     def suppress_errors(self) -> bool:
         return False
+
+
+async def parse_response(response: aiohttp.ClientResponse, cls, is_list: bool = False):
+    if response.status == 200 or response.status == 201:
+        if not is_list:
+            return await deserialize_object(response, cls)
+        else:
+            return await deserialize_list(response, cls)
+    else:
+        try:
+            api_error = await deserialize_object(response, APIErrorData)
+        except Exception as e:
+            raise APIError(response, None)
+
+        raise APIError(response, api_error)
+
+
+# Get github.com's API endpoint.
+def get_dotcom_api_endpoint() -> str:
+    env_endpoint = os.environ[
+        'DESKTOP_GITHUB_DOTCOM_API_ENDPOINT'] if 'DESKTOP_GITHUB_DOTCOM_API_ENDPOINT' in os.environ else None
+    if env_endpoint:
+        return env_endpoint
+    return 'https://api.github.com'
+
+
+class AuthorizationResponseKind(Enum):
+    Authorized = 0
+    Failed = 1
+    TwoFactorAuthenticationRequired = 2
+    UserRequiresVerification = 3
+    PersonalAccessTokenBlocked = 4
+    Error = 5
+    EnterpriseTooOld = 6
+
+
+@dataclass
+class AuthorizationResponse:
+    kind: AuthorizationResponseKind
+    token: Optional[str] = None
+    response: Optional[aiohttp.ClientResponse] = None
+    type: Optional[AuthenticationMode] = None
+
+
+# create an authorization with given login,password, and one-time password.
+async def create_authorization(endpoint: str, login: str, password: str,
+                               onetime_password: Optional[str] = None) -> AuthorizationResponse:
+    creds = str(base64.encodebytes(f"{login}:{password}".encode('utf-8')), 'utf-8').strip()
+    authorization = f"Basic {creds}"
+    opt_header = {'X-GitHub-OTP': onetime_password} if onetime_password else {}
+    note = get_note()
+
+    response = await request(get_session(),
+                             endpoint,
+                             None,
+                             HTTPMethod.POST,
+                             'authorizations',
+                             {
+                                 'scopes': kScopes,
+                                 'client_id': kClientId,
+                                 'client_secret': kClientSecret,
+                                 'note': note,
+                                 'note_url': kNoteURL,
+                                 'fingerprint': str(uuid4())
+                             },
+                             {
+                                 'Authorization': authorization,
+                                 **opt_header
+                             })
+    try:
+        result = await parse_response(response, APIAuthorizationData)
+        token = result.token
+        if isinstance(token, str) and token:
+            return AuthorizationResponse(kind=AuthorizationResponseKind.Authorized, token=token)
+    except Exception as e:
+        if response.status == 401:
+            otp_response = response.headers.get('x-github-otp')
+            if otp_response:
+                pieces = otp_response.split(';')
+                if len(pieces) == 2:
+                    type = pieces[1].strip()
+                    if type == 'app':
+                        return AuthorizationResponse(kind=AuthorizationResponseKind.TwoFactorAuthenticationRequired,
+                                                     type=AuthenticationMode.App)
+                    elif type == 'sms':
+                        return AuthorizationResponse(kind=AuthorizationResponseKind.TwoFactorAuthenticationRequired,
+                                                     type=AuthenticationMode.Sms)
+                    else:
+                        return AuthorizationResponse(kind=AuthorizationResponseKind.Failed,
+                                                     response=response)
+            return AuthorizationResponse(kind=AuthorizationResponseKind.Failed,
+                                         response=response)
+
+        api_error = isinstance(e, APIError) and e.apiError
+        if api_error:
+            if response.status == 403 and api_error.message == 'This API can only be accessed with username and password Basic Auth':
+                # Authorization API does not support providing personal access tokens
+                return AuthorizationResponse(kind=AuthorizationResponseKind.PersonalAccessTokenBlocked)
+            elif response.status == 422:
+                if api_error.errors:
+                    for error in api_error.errors:
+                        is_expected_resource = error.message.lower() == 'oauthaccess'
+                        is_expected_field = error.field.lower() == 'user'
+
+                        if is_expected_resource and is_expected_field:
+                            return AuthorizationResponse(kind=AuthorizationResponseKind.UserRequiresVerification)
+                elif api_error.message == 'Invalid OAuth application client_id or secret.':
+                    return AuthorizationResponse(kind=AuthorizationResponseKind.EnterpriseTooOld)
+
+    return AuthorizationResponse(kind=AuthorizationResponseKind.Error, response=response)
+
+
+# the not used for created authorizations.
+def get_note() -> str:
+    local_username = 'unknown'
+    try:
+        local_username = get_machine_username()
+    except Exception as e:
+        logging.error(f"get_note: unable to resolve machine username, using '{local_username}' as a fallback", e)
+
+    return f"GitHub Desktop on {local_username}@{socket.gethostname()}"

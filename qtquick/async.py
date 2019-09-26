@@ -6,6 +6,7 @@ from PyQt5.QtCore import QUrl, QObject, pyqtSlot
 from PyQt5.QtQml import QQmlApplicationEngine, QJSValue, qjsEngine
 from asyncqt import QEventLoop, asyncSlot, asyncClose
 from PyQt5.QtGui import QGuiApplication
+from typing import List
 
 
 def myAsyncSlot(*args):
@@ -30,7 +31,7 @@ class Http(QObject):
 
     @pyqtSlot(str, QJSValue)
     def fetch(self, url: str, callback: QJSValue):
-        asyncio.ensure_future(self.async_fetch(url, QJSValue(callback)))
+        asyncio.create_task(self.async_fetch(url, QJSValue(callback)))
 
     async def async_fetch(self, url, callback: QJSValue):
         try:
@@ -57,5 +58,6 @@ engine.load(QUrl("async.qml"))
 if not engine.rootObjects():
     sys.exit(-1)
 
+asyncio.events._set_running_loop(loop)
 with loop:
     sys.exit(loop.run_forever())
