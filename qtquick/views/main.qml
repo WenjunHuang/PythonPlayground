@@ -1,5 +1,6 @@
 import QtQuick 2.13
 import QtQuick.Window 2.13
+import "config.mjs" as Config
 
 Window {
     visible: true

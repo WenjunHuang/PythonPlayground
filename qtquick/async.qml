@@ -51,9 +51,11 @@ Window {
             }
         }
 
+
+
         Rectangle {
             id: busy
-            color: Qt.rgba(0, 0, 0, 0.2)
+            color: hexToRgbA('#ea4aaa', 0.2)
             opacity: 0.0
             enabled: opacity == 1.0
             anchors.fill: parent
@@ -62,13 +64,27 @@ Window {
             }
 
             Behavior on opacity {
-                NumberAnimation{
+                NumberAnimation {
                     duration: 1000
                 }
             }
 
-            MouseArea{
+            MouseArea {
                 anchors.fill: parent
+            }
+
+            function hexToRgbA(hex,alpha) {
+                var c
+                if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+                    c = hex.substring(1).split('')
+                    if (c.length === 3) {
+                        c = [c[0], c[0], c[1], c[1], c[2], c[2]]
+                    }
+                    c = '0x' + c.join('')
+                    return Qt.rgba(((c >> 16) & 255) / 255, ((c >> 8) & 255) / 255,
+                                   (c & 255) / 255, alpha)
+                }
+                throw new Error('Bad Hex')
             }
         }
 

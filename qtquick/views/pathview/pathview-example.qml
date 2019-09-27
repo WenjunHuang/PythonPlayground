@@ -1,4 +1,5 @@
 import QtQuick 2.12
+import '../config.mjs' as Config
 
 Rectangle {
     width: 400
