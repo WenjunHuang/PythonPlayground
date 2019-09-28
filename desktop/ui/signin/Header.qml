@@ -5,37 +5,24 @@ import "../styles/variables.mjs" as Vars
 import "../border"
 import "../octicons"
 
-Rectangle {
-    property string title: "Demo"
-    property bool dismissable:true
+Pane{
+    property bool dismissable: true
     property bool loading: true
     signal dismissed
 
-    height: 50
-    color: 'white'
+    contentHeight: _title.implicitHeight
 
-    Border {
-        commonBorder: false
-        bBorderwidth: Vars.base_border_width
-        borderColor: Vars.base_border_color
-
-        Component.onCompleted: {
-            console.log(Vars.base_border_width)
-            console.log(Vars.base_border_color)
-        }
-    }
+    padding: Vars.spacingX2
 
     Text {
         id: _title
-        text: title
+        text: 'Sign in'
         font {
             weight: Vars.font_weight_semibold
             pixelSize: Vars.font_size_md
         }
         color: Vars.text_color
         anchors.left: parent.left
-        anchors.leftMargin: Vars.spacingX2
-        anchors.verticalCenter: parent.verticalCenter
     }
 
     Octicon {
@@ -50,19 +37,18 @@ Rectangle {
 
     Octicon {
         id: _closeIcon
-        symbol:'x'
-        width:12
-        height:16
-        anchors.right:parent.right
-        anchors.rightMargin: Vars.spacingX2
+        symbol: 'x'
+        width: 12
+        height: 16
+        anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         visible: dismissable
     }
 
     ColorOverlay {
-        anchors.fill:_closeIcon
-        source:_closeIcon
-        color:Vars.text_secondary_color
+        anchors.fill: _closeIcon
+        source: _closeIcon
+        color: Vars.text_secondary_color
         visible: dismissable
     }
 
@@ -76,6 +62,8 @@ Rectangle {
         duration: 1000
         running: false
     }
+
+
 
     states: [
         State {

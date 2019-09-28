@@ -19,7 +19,7 @@ export const button_hover_background = Colors.lighter(Colors.blue, 0.05)
 export const button_text_color = Colors.white
 export const button_focus_border_color = Colors.getColor('blue', '600')
 
-export const link_button_background = Colors.blue
+export const link_button_color = Colors.blue
 export const link_button_hover_color = Colors.getColor('blue', '600')
 
 export const secondary_button_background = Colors.getColor('gray', '000')
