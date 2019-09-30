@@ -2,9 +2,10 @@ from dataclasses import dataclass, replace
 from typing import List
 import logging
 
-from desktop.lib.api import APIEmailData, get_dotcom_api_endpoint, API
+from desktop.lib.api import APIEmailData, get_dotcom_api_endpoint, API, dataclass_json
 
 
+@dataclass_json
 @dataclass
 class Account:
     login: str

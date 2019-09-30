@@ -44,7 +44,9 @@ Window {
                 if (url) {
                     root.state = "loading"
                     var result = http.fetch(url, function (result) {
-                        taResponse.text = result
+                    console.log(result.result)
+
+                        taResponse.text = result.result
                         root.state = "normal"
                     })
                 }

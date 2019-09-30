@@ -19,9 +19,6 @@ class TestHttp(unittest.TestCase):
         self.loop.run_until_complete(get_session().close())
         self.loop.close()
 
-    def create_session(self):
-        return aiohttp.ClientSession()
-
     async def get_result(self):
         response = await request(
             get_session(),

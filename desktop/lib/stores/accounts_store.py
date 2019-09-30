@@ -1,29 +1,16 @@
-import logging
 import asyncio
-from dataclasses import dataclass, asdict
+import json
+import logging
+from dataclasses import asdict
 from typing import *
 
-from dataclasses_json import dataclass_json
 from pyee import BaseEventEmitter
 
-from desktop.lib.api import APIEmailData
 from desktop.lib.auth import get_key_for_account
 from desktop.lib.common import with_logger
 from desktop.lib.models.account import Account, fetch_user
-from desktop.lib.stores import IDataStore, ISecureStore
+from desktop.lib.stores.stores import IDataStore, ISecureStore
 from .base_store import BaseStore
-
-
-@dataclass_json
-@dataclass
-class AccountStore:
-    token: str
-    login: str
-    endpoint: str
-    emails: List[APIEmailData]
-    avatar_url: str
-    id: int
-    name: str
 
 
 @with_logger
@@ -63,13 +50,44 @@ class AccountsStore(BaseStore):
         self.save()
         return updated
 
+    async def refresh(self):
+        futures = map(lambda acc: self.__try_update_account(acc), self._accounts)
+        result, _ = await asyncio.wait(futures)
+        self._accounts = [f.result for f in result]
+        self.save()
+        self.emit_update(self._accounts)
+
+    async def remove_account(self, account: Account):
+        await self._loading_task
+        try:
+            await self._security_store.delete_item(get_key_for_account(account),
+                                                   account.login)
+        except Exception as e:
+            self.logger.error(f"Error removing account '{account.login}'", e)
+            self.emit_error(e)
+            return
+        else:
+            self._accounts = filter(lambda a: a.id != account.id, self._accounts)
+            self.save()
+
+    async def save(self):
+        users_without_tokens = map(lambda account: account.with_token(''), self._accounts)
+        self._data_store.set_item('users', json)
+
+    async def __try_update_account(self, acc: Account):
+        try:
+            return await updated_account(acc)
+        except Exception as e:
+            self.logger.warn(f"Error refreshing account '{acc.login}'", e)
+            return acc
+
     async def __load_from_store(self):
         raw = self._data_store.get_item('users')
         if not raw:
             return
 
         accounts_with_tokens = []
-        for item in map(lambda i: AccountStore.json.loads(i), raw):
+        for item in map(lambda i: Account.json.loads(i), raw):
             account_without_token = Account(**(asdict(item)))
             key = get_key_for_account(account_without_token)
             try:
@@ -83,4 +101,6 @@ class AccountsStore(BaseStore):
 
 
 async def updated_account(account: Account) -> Account:
+    if not account.token:
+        raise Exception(f"Cannot update an account which doesn't have a token: {account.login}")
     return await fetch_user(account.endpoint, account.token)

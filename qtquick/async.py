@@ -38,11 +38,15 @@ class Http(QObject):
             async with self.session.get(url) as r:
                 result = await r.text()
 
-            await asyncio.sleep(10)
         except Exception as e:
             result = f"Error: {e}"
+        print(result)
 
-        result = [QJSValue(result)]
+        engine = qjsEngine(self)
+        result_object = engine.newObject()
+        result_object.setProperty("result", QJSValue(result))
+        # result = [QJSValue(result)]
+        result = [result_object]
         callback.call(result)
 
 
