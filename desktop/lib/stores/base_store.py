@@ -5,7 +5,7 @@ from pyee import BaseEventEmitter
 
 
 class BaseStore(QObject):
-    update = pyqtSignal()
+    update = pyqtSignal(object)
     error = pyqtSignal(Exception)
 
     def __init__(self, parent=None):

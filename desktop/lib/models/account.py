@@ -6,7 +6,7 @@ from desktop.lib.api import APIEmailData, get_dotcom_api_endpoint, API, dataclas
 
 
 @dataclass_json
-@dataclass
+@dataclass(frozen=True)
 class Account:
     login: str
     endpoint: str
@@ -15,6 +15,10 @@ class Account:
     avatar_url: str
     id: int
     name: str
+
+    def __hash__(self):
+        return hash(self.login) ^ hash(self.endpoint) ^ hash(self.token) ^ hash(self.avatar_url) ^ hash(self.id) ^ hash(
+            self.name)
 
     def with_token(self, token: str) -> 'Account':
         return replace(self, token=token)

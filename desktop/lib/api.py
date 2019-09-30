@@ -308,7 +308,7 @@ class API:
                                           APIRepositoryData)
         except Exception as e:
             logging.warning(f"fetch_repositories: {e}")
-            return None
+            raise e
 
     async def fetch_account(self) -> APIFullIdentityData:
         try:
@@ -316,6 +316,7 @@ class API:
             return await parse_response(response, APIFullIdentityData)
         except Exception as e:
             logging.warning(f"fetch_account: failed with endpoint {self.endpoint}", e)
+            raise e
 
     async def fetch_emails(self) -> List[APIEmailData]:
         try:

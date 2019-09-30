@@ -14,20 +14,16 @@ class AccountRepositories:
 
 
 class ApiRepositoriesStore(BaseStore):
-    _account_state: List[Tuple[Account, AccountRepositories]]
+    _account_state: Mapping[Account, AccountRepositories]
 
     def __init__(self, accounts_store: AccountsStore):
         super().__init__()
-        self._account_state = []
+        self._account_state = {}
         accounts_store.update.connect(self.__on_accounts_changed)
 
     async def load_repositories(self, account: Account):
         existing_account = resolve_account(account, self._account_state)
-        existing_repositories = None
-        for a, r in self._account_state:
-            if a == existing_account:
-                existing_repositories = r
-                break
+        existing_repositories = self._account_state.get(existing_account)
 
         if existing_repositories and existing_repositories.loading:
             return
@@ -46,16 +42,10 @@ class ApiRepositoriesStore(BaseStore):
 
     def __update_account(self, account: Account, *, loading: Optional[bool] = None,
                          repositories: Optional[List[APIRepositoryData]] = None):
-        new_state = list(self._account_state)
+        new_state = dict(self._account_state)
         newOrExistingAccount = resolve_account(account, new_state)
-        existing_repositories = None
-        for a, v in new_state:
-            if a == newOrExistingAccount:
-                existing_repositories = v
-                break
-        else:
-            existing_repositories = AccountRepositories(loading=False,
-                                                        repositories=[])
+        existing_repositories = new_state.get(newOrExistingAccount, AccountRepositories(loading=False,
+                                                                                        repositories=[]))
 
         update = {}
         if loading:
@@ -84,12 +74,11 @@ def account_equals(x: Account, y: Account) -> bool:
 
 
 def resolve_account(account: Account,
-                    account_state: List[Tuple[Account, AccountRepositories]]):
-    for k, _ in account_state:
-        if account == k:
-            return account
+                    account_state: Mapping[Account, AccountRepositories]):
+    if account in account_state:
+        return account
 
-    for existing_account, _ in account_state:
+    for existing_account in account_state.keys():
         if account_equals(existing_account, account):
             return existing_account
     return account

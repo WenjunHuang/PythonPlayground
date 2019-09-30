@@ -18,7 +18,7 @@ class FakeAccountStore(QObject):
 class TestApiRepositoriesStore(unittest.TestCase):
     def setUp(self) -> None:
         self.loop = asyncio.get_event_loop()
-        self.token = '3634aab2904b8eeda8805b7bb552e97f27584a3e'
+        self.token = 'd1c38489fb67565c48dc7c96e7297d72c3308745'
         self.endpoint = "https://api.github.com"
         self.api_repositories_store = ApiRepositoriesStore(FakeAccountStore())
         init_session()
@@ -32,5 +32,10 @@ class TestApiRepositoriesStore(unittest.TestCase):
             account = await fetch_user(self.endpoint, self.token)
             return await self.api_repositories_store.load_repositories(account)
 
+        def updated(data):
+            print('updated')
+            print(data)
+
+        self.api_repositories_store.update.connect(updated)
         result = self.loop.run_until_complete(work())
         print(result)
