@@ -9,11 +9,15 @@ import "../styles/variables.mjs" as Vars
 C.Pane {
     id: _dialog
     property string title
+
+    property bool showFooter:true
     property string submitButtonText
     property string dismissButtonText
+
     property alias enableSubmit: _submitButton.enabled
     property bool loading: false
     property bool dismissable: true
+
     property alias dialogContent: _contentLoader.item
 
     property bool showError: false
@@ -187,6 +191,7 @@ C.Pane {
             height: 1
             color: Vars.box_border_color
             Layout.fillWidth: true
+            visible: showFooter
         }
 
         C.Pane {
@@ -194,65 +199,23 @@ C.Pane {
             padding: Vars.spacingX2
             contentHeight: _cancelButton.implicitHeight
             Layout.fillWidth: true
+            visible:showFooter
 
-            Button {
+            C.SecondaryButton {
                 id: _cancelButton
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                text: dismissButtonText
-                implicitHeight: 25
                 implicitWidth: 120
-                hoverEnabled: true
-                contentItem: Text {
-                    text: _cancelButton.text
-                    font {
-                        pixelSize: Vars.font_size
-                    }
-                    color: Vars.secondary_button_text_color
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                background: Rectangle {
-                    implicitHeight: 25
-                    implicitWidth: 128
-                    radius: Vars.border_radius
-                    border.width: Vars.base_border_width
-                    border.color: Vars.base_border_color
-                    color: Vars.secondary_button_background
-                }
-
+                text: dismissButtonText
                 onClicked: dismissed()
             }
-            Button {
+            C.PrimaryButton {
                 id: _submitButton
                 text: submitButtonText
-                implicitHeight: 25
                 implicitWidth: 120
-                hoverEnabled: true
-                opacity: enabled ? 1.0 : 0.6
                 anchors.right: _cancelButton.left
                 anchors.rightMargin: Vars.spacing_half
                 anchors.verticalCenter: parent.verticalCenter
-                contentItem: Text {
-                    text: _submitButton.text
-                    font {
-                        pixelSize: Vars.font_size
-                    }
-                    color: Vars.button_text_color
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                background: Rectangle {
-                    implicitHeight: 25
-                    implicitWidth: 128
-                    radius: Vars.border_radius
-                    border.width: Vars.base_border_width
-                    border.color: Vars.base_border_color
-                    color: (hovered
-                            && enabled) ? Vars.button_hover_background : Vars.button_background
-                }
                 onClicked: submitted()
             }
         }

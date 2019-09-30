@@ -6,7 +6,9 @@ import "../common" as C
 import "../styles/variables.mjs" as Vars
 
 GithubDialog {
+    id: _dialog
     title: 'Clone a Repository'
+    showFooter: false
 
     contentComponent: Component {
         C.Pane {
@@ -26,128 +28,151 @@ GithubDialog {
                     }
                 }
                 StackLayout {
+                    id: stack
                     Layout.fillWidth: true
                     currentIndex: _tabBar.currentIndex
                     C.Pane {
                         id: _githubDotCom
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            sourceComponent: _githubDotComCallToAction
+                        property bool active: stack.currentIndex === 0
+
+                        Binding {
+                            target: _dialog
+                            property: 'showFooter'
+                            value: false
+                            when: active
+                        }
+
+                        padding: Vars.spacing
+                        width: parent.width
+
+                        RowLayout {
+                            width: parent.width
+                            spacing: Vars.spacingX2
+                            Text {
+                                elide: Text.ElideRight
+                                text: 'Sign in to your GitHub.com account to access your repositories.'
+                                wrapMode: Text.WordWrap
+                            }
+                            C.PrimaryButton {
+                                Layout.alignment: Qt.AlignBottom | Qt.AlignRight
+                                implicitWidth: 120
+                                text: 'Sign In'
+                            }
                         }
                     }
                     C.Pane {
                         id: _githubEnterprise
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            sourceComponent: _githubEnterpriseCallToAction
+                        property bool active: stack.currentIndex === 1
+
+                        Binding {
+                            target: _dialog
+                            property: 'showFooter'
+                            value: false
+                            when: active
+                        }
+
+                        padding: Vars.spacing
+                        width: parent.width
+
+                        RowLayout {
+                            width: parent.width
+                            spacing: Vars.spacingX2
+                            Text {
+                                elide: Text.ElideRight
+                                text: 'If you have a GitHub Enterprise Server account at work,sign in to it to get access to your repositories.'
+                                wrapMode: Text.WordWrap
+                            }
+                            C.PrimaryButton {
+                                Layout.alignment: Qt.AlignBottom | Qt.AlignRight
+                                implicitWidth: 120
+                                text: 'Sign In'
+                            }
                         }
                     }
+
                     C.Pane {
                         id: _generic
-                    }
-                }
-            }
-        }
-    }
+                        property bool active: stack.currentIndex === 2
 
-    Component {
-        id: _githubDotComCallToAction
-        C.Pane {
-            padding: Vars.spacing
-            width: parent.width
-
-            RowLayout {
-                width: parent.width
-                spacing: Vars.spacingX2
-                Text {
-                    //Layout.preferredWidth: parent.width - _signInBtn.width - parent.spacing
-                    elide: Text.ElideRight
-                    text: 'Sign in to your GitHub.com account to access your repositories.'
-                    wrapMode: Text.WordWrap
-                }
-                Button {
-                    id: _signInBtn
-                    Layout.alignment: Qt.AlignBottom | Qt.AlignRight
-                    implicitHeight: Vars.button_height
-                    implicitWidth: 120
-                    hoverEnabled: true
-                    opacity: enabled ? 1.0 : 0.6
-                    contentItem: Text {
-                        text: 'Sign In'
-                        font {
-                            pixelSize: Vars.font_size
+                        Binding {
+                            target: _dialog
+                            property: 'showFooter'
+                            value: true
+                            when: _generic.active
                         }
-                        color: Vars.button_text_color
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
 
-                    background: Rectangle {
-                        radius: Vars.border_radius
-                        border.width: Vars.base_border_width
-                        border.color: Vars.base_border_color
-                        color: (hovered
-                                && enabled) ? Vars.button_hover_background : Vars.button_background
-                    }
-                }
-            }
-        }
-    }
-
-    Component {
-        id: _githubEnterpriseCallToAction
-        C.Pane {
-            padding: Vars.spacing
-            width: parent.width
-
-            RowLayout {
-                width: parent.width
-                spacing: Vars.spacingX2
-                Text {
-                    elide: Text.ElideRight
-                    text: 'If you have a GitHub Enterprise Server account at work,sign in to it to get access to your repositories.'
-                    wrapMode: Text.WordWrap
-                }
-                Button {
-                    id: _signInBtn
-                    Layout.alignment: Qt.AlignBottom | Qt.AlignRight
-                    implicitHeight: Vars.button_height
-                    implicitWidth: 120
-                    hoverEnabled: true
-                    opacity: enabled ? 1.0 : 0.6
-                    contentItem: Text {
-                        text: 'Sign In'
-                        font {
-                            pixelSize: Vars.font_size
+                        Binding {
+                            target: _dialog
+                            property: 'enableSubmit'
+                            value: _urlOrUserName.text && _localPath.text
+                            when: active
                         }
-                        color: Vars.button_text_color
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
 
-                    background: Rectangle {
-                        radius: Vars.border_radius
-                        border.width: Vars.base_border_width
-                        border.color: Vars.base_border_color
-                        color: (hovered
-                                && enabled) ? Vars.button_hover_background : Vars.button_background
-                    }
-                }
-            }
-        }
-    }
+                        Binding {
+                            target: _dialog
+                            property: 'submitButtonText'
+                            value: 'Clone'
+                            when: active
+                        }
+                        Binding {
+                            target: _dialog
+                            property: 'dismissButtonText'
+                            value: 'Cancel'
+                            when: active
+                        }
 
-    Component {
-        id: cloneGenericRepository
-        C.Pane {
-            padding: Vars.spacingX2
-            ColumnLayout {
-                width: parent.width
-                spacing: Vars.spacing
-                ColumnLayout {
-                    spacing: Vars.spacing_third
+                        Connections {
+                            target: _dialog
+                            onSubmitted: {
+                                console.log('ok')
+                            }
+                            enabled: active
+                        }
+
+                        padding: Vars.spacingX2
+                        ColumnLayout {
+                            width: parent.width
+                            spacing: Vars.spacing
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: Vars.spacing_third
+                                Text {
+                                    text: 'Repository URL or GitHub username and repository'
+                                    font.pixelSize: Vars.font_size
+                                }
+                                Text {
+                                    text: '(hubot/cool-repo)'
+                                    font.pixelSize: Vars.font_size
+                                }
+                                C.TextInput {
+                                    id: _urlOrUserName
+                                    Layout.fillWidth: true
+                                    placeholderText: 'URL or username/repository'
+                                }
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                RowLayout {
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: Vars.spacing_third
+                                        Text {
+                                            text: 'Local Path'
+                                            font.pixelSize: Vars.font_size
+                                        }
+                                        C.TextInput {
+                                            Layout.fillWidth: true
+                                            id: _localPath
+                                        }
+                                    }
+                                    C.SecondaryButton {
+                                        Layout.alignment: Qt.AlignBottom | Qt.AlignRight
+                                        text: "Choose..."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

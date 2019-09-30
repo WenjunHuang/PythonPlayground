@@ -14,8 +14,8 @@ GithubDialog {
     contentComponent: Component {
         C.Pane {
             RowLayout {
-                anchors.left:parent.left
-                anchors.right:parent.right
+                anchors.left: parent.left
+                anchors.right: parent.right
                 spacing: Vars.spacing
                 ColumnLayout {
                     Layout.fillWidth: true
@@ -27,34 +27,15 @@ GithubDialog {
                     }
 
                     C.TextInput {
+                        Layout.fillWidth: true
                         id: _repositoryPath
                         placeholderText: 'repository path'
-                        Layout.fillWidth: true
                     }
                 }
-                Button {
+                C.SecondaryButton {
                     id: _chooseButton
                     Layout.alignment: Qt.AlignBottom
-                    hoverEnabled: true
-                    contentItem: Text {
-                        id:_text
-                        text: 'Choose...'
-                        font {
-                            pixelSize: Vars.font_size
-                        }
-                        color: Vars.secondary_button_text_color
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    background: Rectangle {
-                        implicitHeight: Vars.button_height
-                        implicitWidth: _text.implicitWidth + Vars.spacingX2
-                        radius: Vars.border_radius
-                        border.width: Vars.base_border_width
-                        border.color: Vars.base_border_color
-                        color: Vars.secondary_button_background
-                    }
+                    text: 'Choose...'
                     onClicked: {
                         fileDialog.open()
                     }
@@ -66,14 +47,14 @@ GithubDialog {
     FileDialog {
         id: fileDialog
         modality: Qt.WindowModal
-        title:  "Choose a folder"
+        title: "Choose a folder"
         selectFolder: true
         selectedNameFilter: "All files (*)"
         onAccepted: {
             console.log("Accepted: " + fileUrls)
         }
-        onRejected: { console.log("Rejected") }
+        onRejected: {
+            console.log("Rejected")
+        }
     }
-
 }
-

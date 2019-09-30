@@ -55,29 +55,11 @@ GithubDialog {
                         C.TextInput {
                             Layout.fillWidth: true
                         }
-                        Button {
+                        C.SecondaryButton {
                             id: _chooseButton
                             Layout.alignment: Qt.AlignRight
-                            hoverEnabled: true
-                            contentItem: Text {
-                                id: _text
-                                text: 'Choose...'
-                                font {
-                                    pixelSize: Vars.font_size
-                                }
-                                color: Vars.secondary_button_text_color
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
+                            text: 'Choose...'
 
-                            background: Rectangle {
-                                implicitHeight: Vars.button_height
-                                implicitWidth: _text.implicitWidth + Vars.spacingX2
-                                radius: Vars.border_radius
-                                border.width: Vars.base_border_width
-                                border.color: Vars.base_border_color
-                                color: Vars.secondary_button_background
-                            }
                             onClicked: {
                                 fileDialog.open()
                             }

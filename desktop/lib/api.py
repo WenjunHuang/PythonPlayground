@@ -8,6 +8,7 @@ from datetime import datetime
 from urllib.parse import urlsplit, urlunsplit, unquote
 from uuid import uuid4
 
+from PyQt5.QtCore import Q_ENUM
 from dataclasses_json import config
 
 from desktop.lib.common import with_logger, get_machine_username

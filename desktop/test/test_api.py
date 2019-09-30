@@ -11,7 +11,7 @@ from desktop.lib.models.account import fetch_user
 class TestHttp(unittest.TestCase):
     def setUp(self) -> None:
         self.loop = asyncio.get_event_loop()
-        self.token = 'a889d4828cd274939f2c18277e5a0e15805eae1b'
+        self.token = 'ee949e242ee76901e249b220f184a27a15457186'
         self.endpoint = "https://api.github.com"
         init_session()
 
@@ -105,7 +105,10 @@ class TestHttp(unittest.TestCase):
 
     def test_fetch_account(self):
         result = self.loop.run_until_complete(fetch_user(self.endpoint, self.token))
-        print(result)
+        print(result.id)
+        for email in result.emails:
+            print(email.email)
+            print(email.visibility)
 
     def test_create_authorization(self):
         result = self.loop.run_until_complete(create_authorization(self.endpoint, "WenjunHuang", "Rick198023"))

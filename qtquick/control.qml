@@ -2,24 +2,22 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 
 Pane {
-    id:control
-    padding: 14
-    leftInset: 10
-    topInset: -20
-    rightInset: 10
-    bottomInset: 10
-    contentItem:Text{
-        id:content
-    text:"Content"
+    id: control
+    topPadding: 0;bottomPadding: 0;leftPadding: 10;rightPadding: 10;
+    implicitWidth: 120
+    leftInset: 0
+    topInset: 0
+    rightInset: 0
+    bottomInset: 0
+    contentItem: Text {
+        id: content
+        text: "Content"
+        horizontalAlignment: Qt.AlignHCenter
     }
-//    background:Rectangle{
-//    color:"blue"
-//    }
 
     Component.onCompleted: {
-        console.log(content.height)
-        console.log(control.availableHeight)
-        console.log(control.implicitHeight)
-        console.log(control.height)
+        console.log(`width:${control.width}, height:${control.height}`);
+        console.log(`contentWidth:${control.contentWidth}, contentHeight:${control.contentHeight}`);
+        console.log(`Text width:${content.width}, height:${content.height}`);
     }
 }
