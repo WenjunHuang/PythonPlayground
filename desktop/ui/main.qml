@@ -22,5 +22,8 @@ Item {
         Component.onCompleted: {
             //console.log(Vars.text_color)
         }
+        border {
+            style
+        }
     }
 }

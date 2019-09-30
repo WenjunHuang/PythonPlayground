@@ -1,65 +1,138 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
+import "../common" as C
+import "../dialog"
+import "../octicons"
 import "../styles/variables.mjs" as Vars
 
-Pane {
+GithubDialog {
     id: _dialog
-    property string title: 'Demo'
-    property bool loading: true
-    property bool disabled
-    property bool dismissable: true
-    property string errorText
+    title: 'Sign in'
+    submitButtonText: 'Sign in'
+    dismissButtonText: 'Cancel'
+    enableSubmit: dialogContent.userAccount.text
+                  && dialogContent.userPassword.text
 
-    signal dismissed
-    signal submitted
+    contentComponent: Component {
+        C.Pane {
+            property alias userAccount: _userAccount
+            property alias userPassword: _userPassword
+            padding: Vars.spacingX2
+            ColumnLayout {
+                spacing: Vars.spacing
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-    padding: 0
-    implicitWidth: 400
-    ColumnLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        spacing: 0
-        Header {
-            id: _header
-            dismissable: _dialog.dismissable
-            loading: _dialog.loading
-            Layout.fillWidth: true
-        }
-        Rectangle {
-            height: 1
-            id: _headerDivider
-            color: Vars.box_border_color
-            Layout.fillWidth: true
-        }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: Vars.spacing_third
+                    Text {
+                        Layout.fillWidth: true
+                        text: 'User name or email addres'
+                        font.pixelSize: Vars.font_size
+                    }
+                    C.TextInput {
+                        id: _userAccount
+                        Layout.fillWidth: true
+                    }
+                }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: Vars.spacing_third
+                    Text {
+                        Layout.fillWidth: true
+                        text: 'password'
+                        font.pixelSize: Vars.font_size
+                    }
+                    C.TextInput {
+                        id: _userPassword
+                        Layout.fillWidth: true
+                        echoMode: TextInput.Password
+                    }
+                }
 
-        Error {
-            id: _error
-            text: errorText
-            visible: errorText ? true : false
-            Layout.fillWidth: true
-        }
-        Rectangle {
-            id: _errorDivider
-            height: 1
-            color: Vars.form_error_border_color
-            visible: errorText ? true : false
-            Layout.fillWidth: true
-        }
+                Text {
+                    id: _forgotPassword
+                    Layout.fillWidth: true
+                    text: 'Forgot password?'
+                    color: Vars.link_button_color
+                    font.pixelSize: Vars.font_size
+                    font.underline: _forgotPasswordMA.containsMouse
+                    horizontalAlignment: Text.AlignRight
+                    MouseArea {
+                        id: _forgotPasswordMA
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+                    }
+                }
 
-        Content {
-            id: _content
-            Layout.fillWidth: true
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: Vars.spacing_half
+                    Pane {
+                        Layout.fillWidth: true
+                        contentHeight: _or.implicitHeight
+                        padding: 0
+                        Rectangle {
+                            height: 1
+                            color: Vars.box_border_color
+                            Layout.fillWidth: true
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        C.Pane {
+                            anchors.centerIn: parent
+                            anchors.verticalCenterOffset: -3
+                            Text {
+                                id: _or
+                                text: "or"
+                                font.pixelSize: Vars.font_size
+                            }
+                        }
+                    }
+                    C.Pane {
+                        Layout.fillWidth: true
+                        contentHeight: _externalText.implicitHeight
+                        RowLayout {
+                            anchors.centerIn: parent
+                            Text {
+                                id: _externalText
+                                Layout.fillWidth: true
+                                text: 'Sign in using your browser'
+                                color: Vars.link_button_color
+                                font.pixelSize: Vars.font_size
+                                font.underline: _externalTextMA.containsMouse
+                                MouseArea {
+                                    id: _externalTextMA
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                }
+                            }
+                            Octicon {
+                                id: _loadingIcon
+                                symbol: 'link-external'
+                                width: 12
+                                height: 16
+                            }
+                        }
+                    }
+                }
+            }
         }
-        Rectangle {
-            id: _contentDivider
-            height: 1
-            color: Vars.box_border_color
-            Layout.fillWidth: true
-        }
-        Footer {
-            id: _footer
-            Layout.fillWidth: true
-        }
+    }
+
+    onSubmitted: {
+        loading = true
+        showError = true
+        errorText = 'Error'
+    }
+
+    onDismissed: {
+        console.log("dismissed press")
     }
 }

@@ -10,16 +10,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 
+
 add_executable(${PROJECT_NAME} "./ui/main.qml"
     "./ui/styles/color_system.mjs"
     "./ui/styles/variables.mjs"
     "./ui/signin/SigninDialog.qml"
-    "./ui/signin/Content.qml"
-    "./ui/signin/Error.qml"
-    "./ui/signin/Footer.qml"
-    "./ui/signin/Header.qml"
-    "./ui/border/Border.qml"
+    "./ui/common/Border.qml"
+    "./ui/common/Pane.qml"
+    "./ui/common/TextInput.qml"
+    "./ui/common/CheckBox.qml"
+    "./ui/common/ComboBox.qml"
+    "./ui/common/TabButton.qml"
+    "./ui/common/TabBar.qml"
+    "./ui/dialog/GithubDialog.qml"
+
     "./ui/octicons/Octicon.qml"
+    "./ui/add_repository/AddExistingRepository.qml"
+    "./ui/add_repository/CreateRepository.qml"
+
+    "./ui/clone_repository/CloneGithubRepository.qml"
+    "./ui/clone_repository/CloneRepository.qml"
     )
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Quick)
