@@ -19,6 +19,7 @@ Rectangle {
         rightPadding: Vars.spacing_half
         topPadding: Vars.spacing_third
         bottomPadding: Vars.spacing_third
+        font.pixelSize: Vars.font_size
     }
     Text {
         text: placeholderText

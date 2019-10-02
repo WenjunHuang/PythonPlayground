@@ -1,12 +1,18 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Window 2.12
+//import Exported 1.0
+import Foo 1.0
 
 Window {
     width: 640
     height: 280
     title: "Python Async"
     visible: true
+
+    Foo{
+    item: 'abc'
+    }
 
     Item {
         id: root
@@ -40,10 +46,11 @@ Window {
             anchors.bottom: parent.bottom
             anchors.horizontalCenter: parent.horizontalCenter
             onClicked: {
-                var url = inputUrl.text
-                if (url) {
+                var obj = exportedFactory.create('https://news.sina.com.cn')
+//                var url = inputUrl.text
+                if (obj) {
                     root.state = "loading"
-                    var result = http.fetch(url, function (result) {
+                    var result = http.fetch(obj, function (result) {
                     console.log(result.result)
 
                         taResponse.text = result.result

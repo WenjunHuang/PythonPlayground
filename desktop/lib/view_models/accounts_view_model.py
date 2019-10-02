@@ -1,9 +1,11 @@
+import asyncio
+
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtQml import QJSValue, qjsEngine
-from tornado.platform import asyncio
 
 from desktop.lib.api import APIEmailData
 from desktop.lib.common import with_logger
+from desktop.lib.convert import to_jsobject
 from desktop.lib.models.account import Account
 from desktop.lib.stores.accounts_store import AccountsStore
 
@@ -20,31 +22,8 @@ class AccountsViewModel(QObject):
             js_engine = qjsEngine(self)
             try:
                 accounts = await self._accounts_store.get_all()
-
-                result_arrays = js_engine.newArray(len(accounts))
-                for i, account in enumerate(accounts):
-                    obj = js_engine.newObject()
-                    obj.setProperty(Account.endpoint.name, account.endpoint)
-                    obj.setProperty(Account.token, account.token)
-                    obj.setProperty(Account.avatar_url.name, account.avatar_url)
-                    obj.setProperty(Account.name.name, account.name)
-                    obj.setProperty(Account.id.name, account.id)
-                    obj.setProperty(Account.login.name, account.login)
-
-                    # emails
-                    emails = js_engine.newArray(len(account.emails))
-                    for j, email in enumerate(account.emails):
-                        email_obj = js_engine.newObject()
-                        email_obj.setProperty(APIEmailData.primary.name, email.primary)
-                        email_obj.setProperty(APIEmailData.visibility.name, email.visibility.value)
-                        email_obj.setProperty(APIEmailData.verified.name, email.verified)
-                        email_obj.setProperty(APIEmailData.email.name, email.email)
-                        emails.setProperty(j, email_obj)
-                    obj.setProperty(Account.emails.name, emails)
-
-                    result_arrays.setProperty(i, obj)
-
-                callback.call([result_arrays])
+                jsarray = to_jsobject(accounts, js_engine)
+                callback.call([jsarray])
             except Exception as e:
                 self.logger.error(f'error in get_all_accounts', e)
                 error = js_engine.newErrorObject(QJSValue.GenericError, 'error')

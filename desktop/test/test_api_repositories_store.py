@@ -18,7 +18,7 @@ class FakeAccountStore(QObject):
 class TestApiRepositoriesStore(unittest.TestCase):
     def setUp(self) -> None:
         self.loop = asyncio.get_event_loop()
-        self.token = 'd1c38489fb67565c48dc7c96e7297d72c3308745'
+        self.token = 'bc0706b46ea74b7009c82c2204358d96c04e4680'
         self.endpoint = "https://api.github.com"
         self.api_repositories_store = ApiRepositoriesStore(FakeAccountStore())
         init_session()

@@ -10,7 +10,6 @@ from desktop.lib.stores.base_store import BaseStore
 @dataclass
 class AccountRepositories:
     repositories: List[APIRepositoryData]
-    loading: bool
 
 
 class ApiRepositoriesStore(BaseStore):

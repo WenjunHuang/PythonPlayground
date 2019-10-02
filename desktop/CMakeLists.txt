@@ -30,6 +30,7 @@ add_executable(${PROJECT_NAME} "./ui/main.qml"
     "./ui/octicons/Octicon.qml"
     "./ui/add_repository/AddExistingRepository.qml"
     "./ui/add_repository/CreateRepository.qml"
+    "./ui/clone_repository/AccountRepositories.qml"
 
     "./ui/clone_repository/CloneGithubRepository.qml"
     "./ui/clone_repository/CloneRepository.qml"
