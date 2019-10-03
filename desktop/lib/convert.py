@@ -1,48 +1,45 @@
 from dataclasses import is_dataclass, fields
+from enum import Enum
 from functools import singledispatch
 from typing import Optional, Any
 
-from PyQt5.QtQml import QJSEngine, QJSValue
+from PyQt5.QtQml import QJSValue
+
+from desktop.lib.static import get_qml_engine
 
 
 @singledispatch
-def to_jsobject(data, js_engine: QJSEngine) -> Optional[Any]:
-    if is_dataclass(data):
-        js_obj = js_engine.newObject()
+def to_jsobject(data) -> Optional[Any]:
+    if not data:
+        return QJSValue(QJSValue.NullValue)
+    elif is_dataclass(data):
+        js_obj = get_qml_engine().newObject()
         for f in fields(data):
-            v = data[f.name]
-            if isinstance(v, list):
-                js_array = js_engine.newArray()
-                for idx, v in enumerate(v):
-                    if is_dataclass(v):
-                        result = to_jsobject(v, js_engine)
-                    else:
-                        result = v
-                    js_array.setProperty(idx, result)
-                js_obj.setProperty(f.name, js_array)
-            elif is_dataclass(v):
-                result = to_jsobject(v, js_engine)
-                js_obj.setProperty(f.name, result)
-            else:
-                js_obj.setProperty(f.name, v)
-
+            v = getattr(data, f.name)
+            v = to_jsobject(v)
+            js_obj.setProperty(f.name, v)
         return js_obj
     else:
-        return None
+        raise Exception(f'unsupported object {data}')
 
 
 @to_jsobject.register(str)
 @to_jsobject.register(int)
 @to_jsobject.register(bool)
 @to_jsobject.register(float)
-def _(data, js_engine: QJSEngine):
+def _(data):
     return QJSValue(data)
 
 
+@to_jsobject.register(Enum)
+def _(data):
+    return QJSValue(data.value)
+
+
 @to_jsobject.register(list)
-def _(data: list, js_engine: QJSEngine):
-    js_array = js_engine.newArray()
+def _(data: list):
+    js_array = get_qml_engine().newArray()
     for idx, v in enumerate(data):
-        result = to_jsobject(v, js_engine)
+        result = to_jsobject(v)
         js_array.setProperty(idx, result)
     return js_array

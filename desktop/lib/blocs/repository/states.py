@@ -5,25 +5,23 @@ from desktop.lib.api import APIRepositoryData
 from desktop.lib.models import Account
 
 
-class RepositoryState:
-    pass
-
-
-class RepositoryNotLoadedState(RepositoryState):
-    pass
+@dataclass
+class RepositoryNotLoadedState:
+    name: str = 'RepositoryNotLoadedState'
 
 
 @dataclass
-class LoadingAccountRepositoriesState(RepositoryState):
-    account: Account
+class LoadingAccountRepositoriesState:
+    name: str = 'LoadingAccountRepositoriesState'
 
 
 @dataclass
-class AccountRepositoriesLoadedState(RepositoryState):
-    account: Account
+class AccountRepositoriesLoadedState:
     repositories: List[APIRepositoryData]
+    name: str = 'AccountRepositoriesLoadedState'
 
 
 @dataclass
-class FailToLoadAccountRepositoriesState(RepositoryState):
-    error: Exception
+class FailToLoadAccountRepositoriesState:
+    error: str
+    name: str = 'FailToLoadAccountRepositoriesState'

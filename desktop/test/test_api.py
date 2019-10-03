@@ -11,7 +11,7 @@ from desktop.lib.models.account import fetch_user
 class TestHttp(unittest.TestCase):
     def setUp(self) -> None:
         self.loop = asyncio.get_event_loop()
-        self.token = 'ee949e242ee76901e249b220f184a27a15457186'
+        self.token = 'c415e9d535a95a28ecf955c01487330ebfa646e7'
         self.endpoint = "https://api.github.com"
         init_session()
 
