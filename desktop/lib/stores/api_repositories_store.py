@@ -20,7 +20,7 @@ class ApiRepositoriesStore(BaseStore):
         self._account_state = {}
         accounts_store.update.connect(self.__on_accounts_changed)
 
-    async def load_repositories(self, account: Account):
+    async def load_repositories(self, account: Account) -> AccountRepositories:
         existing_account = resolve_account(account, self._account_state)
         existing_repositories = self._account_state.get(existing_account)
 

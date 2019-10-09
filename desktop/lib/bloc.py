@@ -121,11 +121,11 @@ class BlocBuilder(QQuickItem):
     @pyqtSlot(str)
     @pyqtSlot(str, QJSValue)
     def dispatch(self, event_name: str, args: QJSValue = QJSValue()):
-        assert self._block, "No bloc provided"
+        assert self._bloc, "No bloc provided"
         self._bloc.dispatch(event_name, args)
 
     @pyqtSlot(result='QJSValue')
     def currentState(self):
-        assert self._block, "No bloc provided"
+        assert self._bloc, "No bloc provided"
         # called by qml javascript to get the current state.Maybe null
         return to_jsobject(self._bloc.current_state())

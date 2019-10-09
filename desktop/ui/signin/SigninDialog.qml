@@ -16,8 +16,8 @@ GithubDialog {
 
     contentComponent: Component {
         C.Pane {
-            property alias userAccount: _userAccount
-            property alias userPassword: _userPassword
+            property alias userAccount: _userAccount.text
+            property alias userPassword: _userPassword.text
             padding: Vars.spacingX2
             ColumnLayout {
                 spacing: Vars.spacing

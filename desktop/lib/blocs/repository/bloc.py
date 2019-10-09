@@ -19,9 +19,8 @@ class AccountRepositoryBloc(Bloc):
     async def map_event_to_state(self, event):
         if isinstance(event, LoadAccountRepositoryEvent):
             yield LoadingAccountRepositoriesState()
-            token = 'c415e9d535a95a28ecf955c01487330ebfa646e7'
-            endpoint = "https://api.github.com"
-            api = API(endpoint, token)
+            print(event.endpoint,event.token)
+            api = API(endpoint=event.endpoint, token=event.token)
             try:
                 repositories = await api.fetch_repositories()
             except Exception as e:

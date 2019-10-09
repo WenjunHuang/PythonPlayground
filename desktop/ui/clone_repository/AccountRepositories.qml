@@ -8,6 +8,9 @@ import "../octicons"
 import "../styles/variables.mjs" as Vars
 
 C.Pane {
+    property string endpoint
+    property string token
+
     id: root
     padding: Vars.spacingX2
 
@@ -56,7 +59,7 @@ C.Pane {
             var name = state.name
             console.log(name)
             if (name === 'RepositoryNotLoadedState') {
-                bloc.dispatch('LoadAccountRepositoryEvent')
+                bloc.dispatch('LoadAccountRepositoryEvent',{endpoint:endpoint,token:token})
                 root.state = 'uninited'
             } else if (name === 'LoadingAccountRepositoriesState') {
                 root.state = 'loading'
@@ -110,7 +113,7 @@ C.Pane {
                 }
 
                 onClicked: {
-                    bloc.dispatch('LoadAccountRepositoryEvent')
+                    bloc.dispatch('LoadAccountRepositoryEvent',{endpoint:endpoint,token:token})
                 }
             }
         }

@@ -26,14 +26,13 @@ add_executable(${PROJECT_NAME} "./ui/main.qml"
     "./ui/common/SecondaryButton.qml"
     "./ui/common/Button.qml"
     "./ui/dialog/GithubDialog.qml"
-
     "./ui/octicons/Octicon.qml"
     "./ui/add_repository/AddExistingRepository.qml"
     "./ui/add_repository/CreateRepository.qml"
     "./ui/clone_repository/AccountRepositories.qml"
-
     "./ui/clone_repository/CloneGithubRepository.qml"
     "./ui/clone_repository/CloneRepository.qml"
+    "./ui/Repository.qml"
     )
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Quick)
