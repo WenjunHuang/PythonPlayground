@@ -1,10 +1,11 @@
-from abc import ABC
 from dataclasses import dataclass
+from typing import Optional
 
-from desktop.lib.models import Account
+from PyQt5.QtQml import QJSValue
 
 
 @dataclass
 class LoadAccountRepositoryEvent:
-    pass
-    # account: Account
+    @classmethod
+    def create(cls, js_props: Optional[QJSValue]):
+        return LoadAccountRepositoryEvent()

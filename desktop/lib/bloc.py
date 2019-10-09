@@ -10,6 +10,11 @@ from desktop.lib.common import with_logger
 from desktop.lib.convert import to_jsobject
 
 
+class BlocError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+
 @with_logger
 class Bloc(QObject):
     def __init__(self):
@@ -90,6 +95,8 @@ class BlocBuilder(QQuickItem):
         super().componentComplete()
         if self._bloc:
             self.stateChanged.emit(to_jsobject(self._bloc.current_state()))
+        else:
+            raise BlocError("No bloc name provided")
 
     @pyqtProperty(str)
     def blocName(self):
@@ -97,10 +104,12 @@ class BlocBuilder(QQuickItem):
 
     @blocName.setter
     def blocName(self, value: str):
-        ctx = QQmlEngine.contextForObject(self)
-        bloc = ctx.contextProperty(value)
-        self._disposable = bloc.state().subscribe(on_next=self.on_next)
-        self._bloc = bloc
+        bloc = QQmlEngine.contextForObject(self).contextProperty(value)
+        if bloc:
+            self._disposable = bloc.state().subscribe(on_next=self.on_next)
+            self._bloc = bloc
+        else:
+            raise BlocError(f'bloc {value} does not exist in context')
 
     def on_next(self, state):
         try:
@@ -112,9 +121,11 @@ class BlocBuilder(QQuickItem):
     @pyqtSlot(str)
     @pyqtSlot(str, QJSValue)
     def dispatch(self, event_name: str, args: QJSValue = QJSValue()):
-        if self._bloc:
-            self._bloc.dispatch(event_name, args)
+        assert self._block, "No bloc provided"
+        self._bloc.dispatch(event_name, args)
 
     @pyqtSlot(result='QJSValue')
     def currentState(self):
+        assert self._block, "No bloc provided"
+        # called by qml javascript to get the current state.Maybe null
         return to_jsobject(self._bloc.current_state())
