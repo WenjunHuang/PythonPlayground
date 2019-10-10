@@ -1,10 +1,13 @@
 import asyncio
+import itertools
+import re
 from collections import deque
 from dataclasses import dataclass
 from typing import Optional, Union, List
 from os import path
-import itertools
-import re
+
+from desktop.lib.git.merge import is_mergeheadset
+from desktop.lib.models.repository import Repository
 
 
 @dataclass
@@ -20,12 +23,13 @@ class StatusEntry:
 
 
 StatusItem = Union[StatusHeader, StatusEntry]
+kConflictStatusCode = ['DD', 'AU', 'UD', 'UA', 'DU', 'AA', 'UU']
 
-def is_mergeheadset(repository:Repository):
-async def git_status(repository_path: str):
+
+async def get_status(repository: Repository):
     args = [
         'git',
-        f"--git-dir {path.join(repository_path, '.git')}"
+        f"--git-dir {path.join(repository.path, '.git')}"
         '--no-optional-locks',
         'status',
         '--untracked-files=all',
@@ -43,6 +47,10 @@ async def git_status(repository_path: str):
         parsed = parse_porcelain_status(stdout.decode())
         headers = itertools.takewhile(lambda i: type(i) == StatusItem, parsed)
         entries = itertools.takewhile(lambda i: type(i) == StatusEntry, parsed)
+        merge_head_found = is_mergeheadset(repository)
+
+        conflicted_files_in_index = itertools.takewhile(lambda i: i.status_code in kConflictStatusCode, entries)
+        rebase_internal_state =
     if stderr:
         raise Exception(f'[stderr]\n{stderr.decode()}')
 
@@ -124,6 +132,3 @@ def parse_porcelain_status(output: str) -> List[StatusItem]:
 
         field = shift(queue)
     return entries
-
-
-asyncio.run(git_status())
