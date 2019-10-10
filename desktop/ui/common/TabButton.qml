@@ -1,21 +1,33 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 import "../styles/variables.mjs" as Vars
 
 TabButton {
     id: control
 
     property bool selected: control.TabBar.tabBar.currentIndex === control.TabBar.index
+    property Item badge
 
     font.pixelSize: Vars.font_size
 
-    contentItem: Text {
-        text: control.text
-        font: control.font
-        color: Vars.text_color
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        elide: Text.ElideRight
+    contentItem: RowLayout {
+        spacing: Vars.spacing_half
+        Item {
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignLeft
+            visible: control.badge ? true : false
+            children: control.badge ? [control.badge] : []
+            implicitHeight: control.badge ? control.badge.implicitHeight : 0
+            implicitWidth: control.badge ? control.badge.implicitWidth : 0
+        }
+        Text {
+            text: control.text
+            font: control.font
+            color: Vars.text_color
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
     }
 
     background: Rectangle {

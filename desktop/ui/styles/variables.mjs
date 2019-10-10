@@ -284,3 +284,4 @@ export const font_size_md = 14
 export const font_size_lg = 28
 export const font_size_xl = 32
 export const font_size_xxl = 42
+export const font_size_xs = 9
