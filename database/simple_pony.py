@@ -1,6 +1,8 @@
 import sqlite3
 from pypika import SQLLiteQuery as Query, Table, Field
 from collections import namedtuple
+import datetime as dt
+import pytz
 
 
 def namedtuple_factory(cursor, row):
@@ -34,3 +36,11 @@ with sqlite3.connect('example') as db:
     key_value = Table('t_key_value_string')
     replace = Query.into(key_value).columns(key_value.key, key_value.value).replace("abcd", "bcdd")
     cursor.execute(replace.get_sql())
+
+
+    # auto increment id
+    process = Table('t_process')
+    created = dt.datetime.now()
+    beijing_tz = dt.timedelta(hours=8)
+    created.replace(tzinfo=beijing_tz)
+    q = Query.into(process).columns(process.name,process.created_time,process.updated_time).values('wenjun',)
