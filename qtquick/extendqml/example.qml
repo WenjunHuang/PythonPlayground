@@ -2,6 +2,8 @@ import QtQuick 2.12
 import People 1.0
 
 BirthdayParty{
+    property var foo:BirthdayParty.Classic
+    property var bar:BirthdayParty.Small
     host:Boy {
         name:"Bob Jones"
         shoe{size:12;color:"white";brand:"Bikey";price:90.0}
@@ -12,7 +14,10 @@ BirthdayParty{
                 size:8
                 color:"blue"
                 brand:"Luma"
-                price:19.95
+                price: notExist
+            }
+            Component.onCompleted:{
+            console.log(shoe.price)
             }
         }
         Girl{name:"Anne Brown"

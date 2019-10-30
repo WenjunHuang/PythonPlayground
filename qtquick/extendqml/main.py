@@ -1,6 +1,9 @@
 import random
 import sys
-from PyQt5.QtCore import QObject, QUrl, pyqtProperty, pyqtSlot, Qt, Q_CLASSINFO, QDate
+from enum import IntEnum
+from typing import List, Any
+
+from PyQt5.QtCore import QObject, QUrl, pyqtProperty, pyqtSlot, Qt, Q_CLASSINFO, QDate, Q_ENUM
 from PyQt5.QtGui import QGuiApplication, QColor
 from PyQt5.QtQml import QQmlApplicationEngine, QQmlEngine, QQmlComponent, qmlRegisterType, QQmlListProperty, \
     qmlAttachedPropertiesObject
@@ -42,6 +45,24 @@ class ShoeDescription(QObject):
     def price(self, value: float):
         self._price = value
 
+    def dynamicPropertyNames(self) -> List['QByteArray']:
+        props = super().dynamicPropertyNames()
+        props.append("notExist")
+        return props
+
+    def setProperty(self, name: str, value: Any) -> bool:
+        if name == "notExit":
+            self._not_exit = value
+            return True
+        else:
+            return super().setProperty(name, value)
+
+    def property(self, name: str) -> Any:
+        if name == "notExit":
+            return 1.0
+        else:
+            return super().property(name)
+
 
 class Person(QObject):
     def __init__(self, parent=None):
@@ -70,8 +91,18 @@ class Girl(Person):
     pass
 
 
+class BirthdayPartySize(IntEnum):
+    Small, Medium, Large = range(3)
+
+
+class BirthdayPartyTheme(IntEnum):
+    Classic, Modern, Future = range(3)
+
+
 class BirthdayParty(QObject):
     Q_CLASSINFO('DefaultProperty', 'guests')
+    Q_ENUM(BirthdayPartySize)
+    Q_ENUM(BirthdayPartyTheme)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -117,7 +148,7 @@ class BirthdayParty(QObject):
 
 
 class BirthdayPartyAttached(QObject):
-    def __init__(self,parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self._rsvp = QDate()
 
